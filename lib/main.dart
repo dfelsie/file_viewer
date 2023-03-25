@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      scrollBehavior: AppScrollBehavior(),
+      //scrollBehavior: AppScrollBehavior(),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
@@ -49,12 +49,26 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+enum AddFileMode { append, replace }
+
 class _MyHomePageState extends State<MyHomePage> {
   List<PlatformFile>? _files;
+  int? _imageNum;
 
-  void _setImages(List<PlatformFile>? files) {
+  void setImageNum(int newNum) {
     setState(() {
-      _files = files;
+      _imageNum = newNum;
+    });
+  }
+
+  void _setImages(List<PlatformFile>? files,
+      {AddFileMode fileMode = AddFileMode.replace}) {
+    setState(() {
+      if (_files == null || fileMode == AddFileMode.replace) {
+        _files = files;
+      } else {
+        _files?.addAll(files ?? []);
+      }
     });
   }
 
@@ -68,20 +82,41 @@ class _MyHomePageState extends State<MyHomePage> {
           filesNull
               ? Container()
               : Center(
-                  child: IconButton(
-                    icon: const Icon(Icons.arrow_back),
-                    onPressed: () => _setImages(null),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () => _setImages(null),
+                      ),
+                      IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: () async {
+                            final selection = await pickImages();
+                            if (selection == null) {
+                              return;
+                            }
+                            final files = selection.files;
+                            _setImages(files, fileMode: AddFileMode.append);
+                          })
+                    ],
                   ),
                 )
         ],
       ),
       body: Center(
-        child: Container(
+        child: SizedBox(
           child: filesNull
               ? ImagePicker(
                   setImages: _setImages,
                 )
-              : Gallery(files: _files!, setImages: _setImages),
+              : SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Gallery(
+                      files: _files!,
+                      setImages: _setImages,
+                      imageNum: _imageNum ?? 0,
+                      setImageNum: setImageNum),
+                ),
         ),
       ),
     );
@@ -98,8 +133,6 @@ class ImagePicker extends StatelessWidget {
         child: const Text("Upload Images!"),
         onPressed: () async {
           final selection = await pickImages();
-          print("Image Selection:");
-          print(selection);
           if (selection == null) {
             return;
           }
