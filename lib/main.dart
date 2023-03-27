@@ -67,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (_files == null || fileMode == AddFileMode.replace) {
         _files = files;
       } else {
+        _imageNum = ((_files?.length ?? -1) + 1);
         _files?.addAll(files ?? []);
       }
     });
@@ -77,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
     final filesNull = _files == null;
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Image Viewer"),
+        title: const Text("Local Image Viewer"),
         actions: [
           filesNull
               ? Container()
@@ -109,14 +110,11 @@ class _MyHomePageState extends State<MyHomePage> {
               ? ImagePicker(
                   setImages: _setImages,
                 )
-              : SizedBox(
-                  width: MediaQuery.of(context).size.width,
-                  child: Gallery(
-                      files: _files!,
-                      setImages: _setImages,
-                      imageNum: _imageNum ?? 0,
-                      setImageNum: setImageNum),
-                ),
+              : Gallery(
+                  files: _files!,
+                  setImages: _setImages,
+                  imageNum: _imageNum ?? 0,
+                  setImageNum: setImageNum),
         ),
       ),
     );
