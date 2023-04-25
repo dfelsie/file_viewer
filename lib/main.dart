@@ -63,14 +63,20 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _setImages(List<PlatformFile>? files,
       {AddFileMode fileMode = AddFileMode.replace}) {
-    setState(() {
-      if (_files == null || fileMode == AddFileMode.replace) {
+    if (_files == null || fileMode == AddFileMode.replace) {
+      setState(() {
         _files = files;
-      } else {
-        _imageNum = ((_files?.length ?? -1) + 1);
+        _imageNum = 0;
+      });
+    } else {
+      //_imageNum = ((_files?.length ?? -1) + 1);
+      //_files?.addAll(files ?? []);
+
+      setState(() {
+        _imageNum = ((_files?.length ?? 0));
         _files?.addAll(files ?? []);
-      }
-    });
+      });
+    }
   }
 
   @override
