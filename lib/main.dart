@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:file_viewer/gallery.dart';
 import 'package:flutter/gestures.dart';
@@ -54,7 +56,40 @@ enum AddFileMode { append, replace }
 class _MyHomePageState extends State<MyHomePage> {
   List<PlatformFile>? _files;
   int? _imageNum;
+/*
+  void _selectImages() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
+      allowMultiple: true,
+      withData: true,
+      withReadStream: true,
+      //onDirectoryPickCancel: () => true,
+    );
 
+    if (result != null) {
+      if (result.files.isNotEmpty) {
+        // Files were selected
+        setState(() {
+          _files = result.paths.map((path) => File(path!)).toList();
+        });
+      } else {
+        // Directory was selected
+        setState(() {
+          _files = result.paths
+              .map((path) => Directory(path!).listSync())
+              .expand((i) => i)
+              .where((f) =>
+                  f.path.endsWith('.jpg') ||
+                  f.path.endsWith('.jpeg') ||
+                  f.path.endsWith('.png'))
+              .map((f) => File(f.path))
+              .toList();
+        });
+      }
+    }
+  }
+ */
   void setImageNum(int newNum) {
     setState(() {
       _imageNum = newNum;

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class Gallery extends StatefulWidget {
-  Gallery(
+  const Gallery(
       {Key? key,
       required this.files,
       required this.setImages,
@@ -13,7 +13,7 @@ class Gallery extends StatefulWidget {
       : super(key: key);
   final List<PlatformFile> files;
   final void Function(List<PlatformFile> files) setImages;
-  int imageNum;
+  final int imageNum;
   final void Function(int newNum) setImageNum;
 
   @override
@@ -54,14 +54,12 @@ class _GalleryState extends State<Gallery> {
       onKey: (RawKeyEvent event) {
         if (event is RawKeyDownEvent) {
           if (event.logicalKey == LogicalKeyboardKey.arrowLeft) {
-            widget.imageNum = (widget.imageNum - 1) % files.length;
-            widget.setImageNum(widget.imageNum);
+            widget.setImageNum((widget.imageNum - 1) % files.length);
 
             // Handle left arrow key event
           } else if (event.logicalKey == LogicalKeyboardKey.arrowRight) {
             // Handle right arrow key event
-            widget.imageNum = (widget.imageNum + 1) % files.length;
-            widget.setImageNum(widget.imageNum);
+            widget.setImageNum((widget.imageNum + 1) % files.length);
           } else if (event.logicalKey == LogicalKeyboardKey.enter) {
             if (_controller.value.text == '') {
               return;
@@ -72,9 +70,7 @@ class _GalleryState extends State<Gallery> {
             } else if (newIndex > (widget.files.length)) {
               newIndex = widget.files.length;
             }
-            //Only works if i edit widget.imageNum
-            widget.imageNum = newIndex - 1;
-            widget.setImageNum(widget.imageNum);
+            widget.setImageNum(newIndex - 1);
           }
         }
       },
@@ -84,12 +80,13 @@ class _GalleryState extends State<Gallery> {
             child: Listener(
               onPointerPanZoomEnd: (event) {
                 //For some reason, moving left is positive.
+                int tempNum;
                 if (_prevDrag > 0) {
-                  widget.imageNum = (widget.imageNum - 1) % files.length;
+                  tempNum = (widget.imageNum - 1) % files.length;
                 } else {
-                  widget.imageNum = (widget.imageNum + 1) % files.length;
+                  tempNum = (widget.imageNum + 1) % files.length;
                 }
-                widget.setImageNum(widget.imageNum);
+                widget.setImageNum(tempNum);
               },
               onPointerPanZoomUpdate: (event) {
                 //final currDrag = event.pan.dx;
@@ -98,38 +95,53 @@ class _GalleryState extends State<Gallery> {
                 });
               },
               onPointerDown: (event) {
-                widget.imageNum = (widget.imageNum + 1) % files.length;
-                widget.setImageNum(widget.imageNum);
+                widget.setImageNum((widget.imageNum + 1) % files.length);
               },
               child: Stack(
                 children: [
                   Positioned(
                     left: 0,
-                    width: 50,
+                    width: 150,
+                    height: 250,
+                    top: MediaQuery.of(context).size.height / 2 - 250,
                     child: ColorFiltered(
                         colorFilter: ColorFilter.mode(
                           Colors.grey.withOpacity(0.5),
                           BlendMode.srcATop,
                         ),
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          color: Colors.red,
-                        )),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.file(
+                                File(files[widget.imageNum == 0
+                                        ? files.length - 1
+                                        : (widget.imageNum - 1) % files.length]
+                                    .path!),
+                                fit: BoxFit.cover,
+                              )
+                            ])),
                   ),
                   Positioned(
                     right: 0,
-                    width: 50,
+                    width: 150,
+                    height: 250,
+                    top: MediaQuery.of(context).size.height / 2 - 250,
                     child: ColorFiltered(
                         colorFilter: ColorFilter.mode(
                           Colors.grey.withOpacity(0.5),
                           BlendMode.srcATop,
                         ),
-                        child: Container(
-                          width: 50,
-                          height: 50,
-                          color: Colors.red,
-                        )),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Image.file(
+                                File(files[(widget.imageNum + 1) % files.length]
+                                    .path!),
+                                fit: BoxFit.cover,
+                              )
+                            ])),
                   ),
                   Container(
                     //Need this to have listen the whole screen's width.
@@ -180,11 +192,9 @@ class _GalleryState extends State<Gallery> {
                     } else if (newIndex > (widget.files.length)) {
                       newIndex = widget.files.length;
                     }
-                    //Only works if i edit widget.imageNum
-                    widget.imageNum = newIndex - 1;
-                    widget.setImageNum(widget.imageNum);
+                    widget.setImageNum(newIndex - 1);
                   },
-                  icon: Icon(Icons.arrow_forward))
+                  icon: const Icon(Icons.arrow_forward))
             ],
           )
         ],
